@@ -159,6 +159,9 @@ class CustomMappingTransformer(BaseEstimator, TransformerMixin):
         return result
     
 class CustomOHETransformer(BaseEstimator, TransformerMixin):
+    """
+    A lightweight transformer that applies one-hot encoding to a single categorical column.
+    """
     def __init__(self, target_column: str) -> None:
         assert isinstance(target_column, str), f"{self.__class__.__name__} expected a string column name but got {type(target_column)} instead."
         self.target_column = target_column
@@ -170,20 +173,9 @@ class CustomOHETransformer(BaseEstimator, TransformerMixin):
         assert isinstance(X, pd.DataFrame), f"{self.__class__.__name__}.transform expected a DataFrame but got {type(X)} instead."
         assert self.target_column in X.columns.to_list(), f"{self.__class__.__name__}.transform unknown column {self.target_column}"
 
-        # One-hot encode just the target column
-        dummies = pd.get_dummies(X[[self.target_column]],
-                                 prefix=self.target_column,
-                                 prefix_sep='_',
-                                 dummy_na=False,
-                                 drop_first=False,
-                                 dtype=int)
+        # Elegant and idiomatic: lets pandas handle column removal and dummies
+        return pd.get_dummies(X, columns=[self.target_column], drop_first=False, dtype=int)
 
-        # Drop the original column and concatenate the dummies
-        X_ = X.copy()
-        X_ = X_.drop(columns=[self.target_column])
-        X_ = pd.concat([X_, dummies], axis=1)
-
-        return X_
 
 
 class CustomDropColumnsTransformer(BaseEstimator, TransformerMixin):
