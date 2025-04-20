@@ -6,6 +6,7 @@ import warnings
 from typing import Dict, Any, Optional, Union, List, Set, Hashable, Literal, Tuple, Self, Iterable
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
 import sklearn
 sklearn.set_config(transform_output="pandas")  #says pass pandas tables through pipeline instead of numpy matrices
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -277,10 +278,14 @@ class CustomDropColumnsTransformer(BaseEstimator, TransformerMixin):
         return X_
     
 
-titanic_transformer = Pipeline(steps=[
-    ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
-    ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
-    ], verbose=True)
+titanic_transformer = Pipeline([
+    ("preprocessor", ColumnTransformer(transformers=[
+        ("gender", CustomMappingTransformer(mapping={"Male": 0, "Female": 1}), ["Gender"]),
+        ("class", CustomMappingTransformer(mapping={"Crew": 0, "C3": 1, "C2": 2}), ["Class"]),
+        ("joined", CustomOHETransformer(), ["Joined"]),
+    ], remainder="passthrough"))
+])
+
 
 customer_transformer = Pipeline(steps=[
     #add drop step below
