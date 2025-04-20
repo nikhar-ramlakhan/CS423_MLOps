@@ -168,14 +168,9 @@ class CustomOHETransformer(BaseEstimator, TransformerMixin):
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         assert isinstance(X, pd.DataFrame), f"{self.__class__.__name__}.transform expected a DataFrame but got {type(X)} instead."
-        assert self.target_column in X.columns.to_list(), f"{self.__class__.__name__}.transform unknown column {self.target_column}"
+        assert self.target_column in X.columns, f"{self.__class__.__name__}.transform unknown column {self.target_column}"
 
-        X_ = pd.get_dummies(X[[self.target_column]],
-                                 prefix=self.target_column,
-                                 prefix_sep='_',
-                                 dummy_na=False,
-                                 drop_first=False,
-                                 dtype=int)
+        X_ = pd.get_dummies(X, columns=[self.target_column], prefix=self.target_column, drop_first=True, dtype=int)
 
         return X_
 
