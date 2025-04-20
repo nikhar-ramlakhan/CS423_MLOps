@@ -159,10 +159,10 @@ class CustomMappingTransformer(BaseEstimator, TransformerMixin):
         return result
     
 class CustomOHETransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, target_column: str, drop_first: bool) -> None:
+    def __init__(self, target_column: str) -> None:
         assert isinstance(target_column, str), f"{self.__class__.__name__} expected a string column name but got {type(target_column)} instead."
         self.target_column = target_column
-        self.drop_first = drop_first
+        self.drop_first = True 
 
     def fit(self, X: pd.DataFrame, y: Optional[Iterable] = None) -> Self:
         return self
