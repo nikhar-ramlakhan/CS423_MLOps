@@ -162,16 +162,28 @@ class CustomOHETransformer(BaseEstimator, TransformerMixin):
     def __init__(self, target_column: str) -> None:
         assert isinstance(target_column, str), f"{self.__class__.__name__} expected a string column name but got {type(target_column)} instead."
         self.target_column = target_column
-        self.drop_first = True 
 
     def fit(self, X: pd.DataFrame, y: Optional[Iterable] = None) -> Self:
         return self
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         assert isinstance(X, pd.DataFrame), f"{self.__class__.__name__}.transform expected a DataFrame but got {type(X)} instead."
-        assert self.target_column in X.columns, f"{self.__class__.__name__}.transform unknown column {self.target_column}"
+        assert self.target_column in X.columns.to_list(), f"{self.__class__.__name__}.transform unknown column {self.target_column}"
 
-        return pd.get_dummies(X, columns=[self.target_column], drop_first=self.drop_first, dtype=int)
+        # One-hot encode just the target column
+        dummies = pd.get_dummies(X[[self.target_column]],
+                                 prefix=self.target_column,
+                                 prefix_sep='_',
+                                 dummy_na=False,
+                                 drop_first=False,
+                                 dtype=int)
+
+        # Drop the original column and concatenate the dummies
+        X_ = X.copy()
+        X_ = X_.drop(columns=[self.target_column])
+        X_ = pd.concat([X_, dummies], axis=1)
+
+        return X_
 
 
 class CustomDropColumnsTransformer(BaseEstimator, TransformerMixin):
@@ -269,7 +281,7 @@ class CustomDropColumnsTransformer(BaseEstimator, TransformerMixin):
 titanic_transformer = Pipeline(steps=[
     ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
     ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
-    ('ohe_joined', CustomOHETransformer(target_column='Joined'))
+    ('ohe_joined', CustomOHETransformer(target_column='Joined')),
     ], verbose=True)
 
 
