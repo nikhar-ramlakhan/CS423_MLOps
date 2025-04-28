@@ -336,6 +336,59 @@ class CustomTukeyTransformer(BaseEstimator, TransformerMixin):
             raise ValueError("Fence must be either 'inner' or 'outer'")
         return X.reset_index(drop=True)
 
+class CustomRobustTransformer(BaseEstimator, TransformerMixin):
+  """Applies robust scaling to a specified column in a pandas DataFrame.
+    This transformer calculates the interquartile range (IQR) and median
+    during the `fit` method and then uses these values to scale the
+    target column in the `transform` method.
+
+    Parameters
+    ----------
+    column : str
+        The name of the column to be scaled.
+
+    Attributes
+    ----------
+    target_column : str
+        The name of the column to be scaled.
+    iqr : float
+        The interquartile range of the target column.
+    med : float
+        The median of the target column.
+  """
+
+  def __init__(self, column: str) -> None:
+        if not isinstance(column, str):
+            raise TypeError(f"Expected string for column name, got {type(column)}.")
+        self.column = column
+        self.median_: float | None = None
+        self.iqr_: float | None = None
+
+  def fit(self, X: pd.DataFrame, y=None) -> "CustomRobustTransformer":
+      if not isinstance(X, pd.DataFrame):
+          raise TypeError(f"fit() expected a DataFrame, got {type(X)}.")
+      if self.column not in X.columns:
+          raise AssertionError(f"Column '{self.column}' not found in input DataFrame.")
+      
+      series = X[self.column]
+      self.median_ = series.median()
+      self.iqr_ = series.quantile(0.75) - series.quantile(0.25)
+      return self
+
+  def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+      if self.median_ is None or self.iqr_ is None:
+          raise AssertionError("transform() called before fit().")
+      if not isinstance(X, pd.DataFrame):
+          raise TypeError(f"transform() expected a DataFrame, got {type(X)}.")
+      
+      X_copy = X.copy()
+      if self.iqr_ != 0:
+          X_copy[self.column] = (X_copy[self.column] - self.median_) / self.iqr_
+      return X_copy
+
+  def fit_transform(self, X: pd.DataFrame, y=None) -> pd.DataFrame:
+      return self.fit(X, y).transform(X)
+
 
 # titanic_transformer = Pipeline(steps=[
 #     ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
