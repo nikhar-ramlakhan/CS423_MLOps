@@ -337,13 +337,13 @@ class CustomTukeyTransformer(BaseEstimator, TransformerMixin):
         return X.reset_index(drop=True)
 
 
-titanic_transformer = Pipeline(steps=[
-    ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
-    ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
-    ('ohe_joined', CustomOHETransformer(target_column='Joined')),
-    ], verbose=True)
+# titanic_transformer = Pipeline(steps=[
+#     ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+#     ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
+#     ('ohe_joined', CustomOHETransformer(target_column='Joined')),
+#     ], verbose=True)
 
-titanic_transformer_v2 = Pipeline(steps=[
+titanic_transformer = Pipeline(steps=[
     ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
     ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
     ('ohe_joined', CustomOHETransformer(target_column='Joined')),
