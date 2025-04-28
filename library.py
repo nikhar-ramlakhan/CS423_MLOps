@@ -396,42 +396,12 @@ class CustomRobustTransformer(BaseEstimator, TransformerMixin):
 #     ('ohe_joined', CustomOHETransformer(target_column='Joined')),
 #     ], verbose=True)
 
-# Pipeline for Age
-age_pipeline = Pipeline(steps=[
-    ('tukey_age', CustomTukeyTransformer(target_column='Age', fence='outer')),
-    ('robust_age', CustomRobustTransformer(column='Age'))
-])
-
-# Pipeline for Fare
-fare_pipeline = Pipeline(steps=[
-    ('tukey_fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
-    ('robust_fare', CustomRobustTransformer(column='Fare'))
-])
-
-# Pipeline for Gender mapping
-gender_pipeline = Pipeline(steps=[
-    ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1}))
-])
-
-# Pipeline for Class mapping
-class_pipeline = Pipeline(steps=[
-    ('map_class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3}))
-])
-
-titanic_transformer = ColumnTransformer(transformers=[
-    ('age_pipeline', age_pipeline, ['Age']),
-    ('fare_pipeline', fare_pipeline, ['Fare']),
-    ('gender_pipeline', gender_pipeline, ['Gender']),
-    ('class_pipeline', class_pipeline, ['Class']),
-    ('ohe_joined', CustomOHETransformer(target_column='Joined'), ['Joined'])
-], remainder='passthrough', verbose=True)
-
-# titanic_transformer = Pipeline(steps=[
-#     ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
-#     ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
-#     ('ohe_joined', CustomOHETransformer(target_column='Joined')),
-#     ('fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
-#     ], verbose=True)
+titanic_transformer = Pipeline(steps=[
+    ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+    ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
+    ('ohe_joined', CustomOHETransformer(target_column='Joined')),
+    ('fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
+    ], verbose=True)
 
 customer_transformer = Pipeline(steps=[
     ('drop_id', CustomDropColumnsTransformer(column_list=['ID'], action='drop')),
@@ -441,3 +411,4 @@ customer_transformer = Pipeline(steps=[
     ('ohe_isp', CustomOHETransformer('ISP')),
     ('time spent', CustomTukeyTransformer('Time Spent', 'inner')),
     ], verbose=True)
+3
