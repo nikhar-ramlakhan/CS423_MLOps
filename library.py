@@ -389,14 +389,54 @@ class CustomRobustTransformer(BaseEstimator, TransformerMixin):
   def fit_transform(self, X: pd.DataFrame, y=None) -> pd.DataFrame:
       return self.fit(X, y).transform(X)
 
+class CustomKNNTransformer(BaseEstimator, TransformerMixin):
+  """Imputes missing values using KNN.
 
-# titanic_transformer = Pipeline(steps=[
-#     ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
-#     ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
-#     ('ohe_joined', CustomOHETransformer(target_column='Joined')),
-#     ], verbose=True)
+  This transformer wraps the KNNImputer from scikit-learn and hard-codes
+  add_indicator to be False. It also ensures that the input and output
+  are pandas DataFrames.
 
-titanic_transformer = Pipeline(steps=[
+  Parameters
+  ----------
+  n_neighbors : int, default=5
+      Number of neighboring samples to use for imputation.
+  weights : {'uniform', 'distance'}, default='uniform'
+      Weight function used in prediction. Possible values:
+      "uniform" : uniform weights. All points in each neighborhood
+      are weighted equally.
+      "distance" : weight points by the inverse of their distance.
+      in this case, closer neighbors of a query point will have a
+      greater influence than neighbors which are further away.
+  """
+  #your code below
+
+  def __init__(self, n_neighbors: PositiveInta = 5, weights: str = 'uniform'):
+    self.n_neighbors = n_neighbors
+    self.weights = weights
+    self.knn_imputer = KNNImputer(n_neighbors=n_neighbors, weights=weights, add_indicator=False)
+
+  def fit(self, X, y=None):
+    self.knn_imputer.fit(X, y)
+    return self
+
+  def transform(self, X, y=None):
+    X_imputed = pd.DataFrame(self.knn_imputer.transform(X), columns=X.columns)
+    return X_imputed
+
+titanic_transformer_v4 = Pipeline(steps=[
+    ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+    ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
+    ('ohe_joined', CustomOHETransformer(target_column='Joined')),
+    ], verbose=True)
+
+titanic_transformer_v5 = Pipeline(steps=[
+    ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+    ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
+    ('ohe_joined', CustomOHETransformer(target_column='Joined')),
+    ('fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
+    ], verbose=True)
+
+titanic_transformer_v6 = Pipeline(steps=[
     ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
     ('map_class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
     ('joined_ohe', CustomOHETransformer(target_column='Joined')),
@@ -405,7 +445,6 @@ titanic_transformer = Pipeline(steps=[
     ('scaled_age', CustomRobustTransformer(column='Age')),
     ('scaled_fare', CustomRobustTransformer(column='Fare'))
 ], verbose=True)
-
 
 customer_transformer = Pipeline(steps=[
     ('drop_id', CustomDropColumnsTransformer(column_list=['ID'], action='drop')),
