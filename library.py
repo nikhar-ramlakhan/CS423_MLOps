@@ -615,12 +615,26 @@ titanic_transformer_v6 = Pipeline(steps=[
     ('scaled_fare', CustomRobustTransformer(column='Fare'))
 ], verbose=True)
 
-customer_transformer = Pipeline(steps=[
-    ('drop_id', CustomDropColumnsTransformer(column_list=['ID'], action='drop')),
+titanic_transformer = Pipeline(steps=[
     ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
-    ('map_experience', CustomMappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high': 2})),
-    ('ohe_os', CustomOHETransformer('OS')),
-    ('ohe_isp', CustomOHETransformer('ISP')),
-    ('time spent', CustomTukeyTransformer('Time Spent', 'inner')),
+    ('map_class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
+    ('target_joined', CustomTargetTransformer(col='Joined', smoothing=10)),
+    ('tukey_age', CustomTukeyTransformer(target_column='Age', fence='outer')),
+    ('tukey_fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
+    ('scale_age', CustomRobustTransformer(column='Age')),
+    ('scale_fare', CustomRobustTransformer(column='Fare')),
+    ('impute', CustomKNNTransformer(n_neighbors=5)),
+    ], verbose=True)
+
+customer_transformer = Pipeline(steps=[
+    ('map_os', CustomMappingTransformer('OS', {'Android': 0, 'iOS': 1})),
+    ('target_isp', CustomTargetTransformer(col='ISP')),
+    ('map_level', CustomMappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high':2})),
+    ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+    ('tukey_age', CustomTukeyTransformer('Age', 'inner')),  #from chapter 4
+    ('tukey_time spent', CustomTukeyTransformer('Time Spent', 'inner')),  #from chapter 4
+    ('scale_age', CustomRobustTransformer(column='Age')), #from 5
+    ('scale_time spent', CustomRobustTransformer(column='Time Spent')), #from 5
+    ('impute', CustomKNNTransformer(n_neighbors=5)),
     ], verbose=True)
 3
