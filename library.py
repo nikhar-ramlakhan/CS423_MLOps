@@ -12,6 +12,10 @@ import sklearn
 sklearn.set_config(transform_output="pandas")  #says pass pandas tables through pipeline instead of numpy matrices
 from sklearn.base import BaseEstimator, TransformerMixin
 
+
+titanic_variance_based_split = 107
+customer_variance_based_split = 113
+
 class CustomMappingTransformer(BaseEstimator, TransformerMixin):
     """
     A transformer that maps values in a specified column according to a provided dictionary.
