@@ -10,6 +10,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import KNNImputer
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
 import sklearn
 sklearn.set_config(transform_output="pandas")  #says pass pandas tables through pipeline instead of numpy matrices
 from sklearn.base import BaseEstimator, TransformerMixin
