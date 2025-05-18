@@ -14,6 +14,7 @@ from sklearn.metrics import f1_score
 import sklearn
 sklearn.set_config(transform_output="pandas")  #says pass pandas tables through pipeline instead of numpy matrices
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
 
 
 titanic_variance_based_split = 107
