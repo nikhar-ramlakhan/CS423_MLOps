@@ -704,7 +704,7 @@ def sort_grid(grid):
 
   return sorted_grid
     
-def halving_search(model, grid, x_train, y_train, factor=2, min_resources="exhaust", scoring='roc_auc'):
+def halving_search(model, grid, x_train, y_train, factor=3, min_resources="exhaust", scoring='roc_auc'):
   search = HalvingGridSearchCV(
       estimator=model,
       param_grid=grid,
