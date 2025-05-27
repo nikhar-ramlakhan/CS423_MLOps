@@ -17,6 +17,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import ParameterGrid
+from sklearn.model_selection import HalvingGridSearchCV
 
 titanic_variance_based_split = 107
 customer_variance_based_split = 113
