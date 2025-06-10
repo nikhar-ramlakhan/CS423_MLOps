@@ -599,6 +599,38 @@ def find_random_state(
 
     return rs_value, Var
 
+def find_random_state_new(features_df, labels, n=100):
+    """
+    Finds the best random state for splitting data by minimizing the difference
+    in target variable distribution between training and testing sets.
+
+    Args:
+        features_df: DataFrame containing features (already transformed).
+        labels: Series or array containing target labels.
+        n: Number of random states to test (default: 100).
+
+    Returns:
+        A tuple containing:
+            - The best random state found.
+            - A dictionary of differences for each random state tested.
+    """
+    diffs = {}
+
+    for i in range(1, n + 1):
+        # Split the already transformed data
+        train_X, test_X, train_y, test_y = train_test_split(
+            features_df, labels, test_size=0.2, random_state=i
+        )
+
+        # Calculate difference in target distribution
+        diff = abs(train_y.value_counts(normalize=True) - test_y.value_counts(normalize=True)).sum() / 2
+        diffs[i] = diff
+
+    # Find the random state with the minimum difference
+    best_rs = min(diffs, key=diffs.get)
+
+    return best_rs, diffs
+    
 def dataset_setup(original_table, label_column_name:str, the_transformer, rs, ts=.2):
     #your code below
     labels = original_table[label_column_name].to_list()
